@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from app.domain import BaseEntity
+from src.domain import BaseEntity
 
 class ProfileUser(BaseEntity):
     uuid: str

@@ -1,7 +1,7 @@
 import httpx
 import ssl
 
-from app.config.settings import Config
+from src.config.settings import Config
 
 timeout = httpx.Timeout(60.0)
 

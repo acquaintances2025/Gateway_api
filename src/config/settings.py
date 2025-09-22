@@ -11,3 +11,5 @@ class Config:
 
     AUTH_URL = os.environ.get('AUTH_URL')
     PROFILE_URL = os.environ.get('PROFILE_URL')
+
+    TIME_COOKIES = os.environ.get('TIME_COOKIES')

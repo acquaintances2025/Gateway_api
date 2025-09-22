@@ -2,7 +2,7 @@ from pydantic import Field
 from datetime import datetime
 from typing import List
 
-from app.domain import BaseEntity
+from src.domain import BaseEntity
 
 class UpdateUser(BaseEntity):
     name: str = Field(default=None, description='Имя пользователя')

@@ -1,11 +1,21 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, Depends
+from starlette.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from typing import Annotated
+
+
 
 from .path import AUTHORIZATION, REGISTRATION, CONFIRMATION
 
-from app.domain import RegistrationUser, ConfirmationUser, AuthUser
-from app.infrastructure import logger, AgentAuthClient
+from src.domain import RegistrationUser, ConfirmationUser, AuthUser
+from src.infrastructure import logger, AgentAuthClient
+
+from src.config.settings import Config
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
+security = HTTPBearer(auto_error=False)
+
 
 
 @auth_router.post(REGISTRATION, summary="Регистрация пользователя",
@@ -30,24 +40,35 @@ auth_router = APIRouter(prefix="/auth", tags=["Auth"])
             "description": "Внутренняя ошибка сервера"
         }
     })
-async def authorization_user(user_data: RegistrationUser):
+async def authorization_user(user_data: RegistrationUser, response: Response):
     try:
+        user_data.birthday = user_data.birthday.isoformat()
         async with AgentAuthClient() as client:
-            response = await client.request(
+            answer = await client.request(
                 "POST",
                 REGISTRATION,
-                json=user_data
+                json=dict(user_data)
             )
 
-            if response.status_code == 200:
+            if answer.status_code == 200:
+                response.delete_cookie(key="Hive")
+                response.set_cookie(
+                    key="Hive",
+                    value=answer.json()["refresh_token"],
+                    httponly=True,
+                    max_age=Config.TIME_COOKIES,
+                    secure=True,
+                    samesite="strict",
+                )
                 logger.info("Успешное выполнение запроса.")
-                return response.json(), 200
+                return JSONResponse(status_code=200, content={"access_token": answer.json()["access_token"]})
             else:
-                logger.error(f"Ответ стороннего сервиса {response.json()}")
-                return response.json(), 400
+                logger.error(f"Ответ стороннего сервиса {answer.json()}")
+                return JSONResponse(status_code=400, content=answer.json())
+
     except Exception as exc:
-        logger.error(f"Ошибка исполнения процесса {exc}")
-        return None, 500
+        logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
+        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
 
 
 
@@ -74,21 +95,22 @@ async def authorization_user(user_data: RegistrationUser):
             "description": "Внутренняя ошибка сервера"
         }
     })
-async  def confirmation_user(code: ConfirmationUser):
+async  def confirmation_user(code: ConfirmationUser,
+                             token: HTTPAuthorizationCredentials | None = Depends(security)):
     try:
         async with AgentAuthClient() as client:
-            response = await client.request(
+            answer = await client.request(
                 "POST",
                 CONFIRMATION,
-                json=code
+                json=dict(code),
+                headers={"Authorization": f"Bearer {token.credentials}"}
             )
-
-            if response.status_code == 200:
+            if answer.status_code == 200:
                 logger.info("Успешное выполнение запроса.")
-                return response.json(), 200
+                return answer.json(), 200
             else:
-                logger.error(f"Ответ стороннего сервиса {response.json()}")
-                return response.json(), 400
+                logger.error(f"Ответ стороннего сервиса {answer.json()}")
+                return JSONResponse(status_code=400, content=answer.json())
     except Exception as exc:
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
         return None, 500

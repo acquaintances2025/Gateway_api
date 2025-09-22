@@ -6,8 +6,8 @@ from typing import List
 
 from .path import GET_PROFILE, DELETE_PROFILE, UPDATE_PROFILE
 
-from app.domain import ProfileUser
-from app.infrastructure import AgentProfileClient, logger
+from src.domain import ProfileUser
+from src.infrastructure import AgentProfileClient, logger
 
 profile_router = APIRouter(
     prefix="/profiles",
