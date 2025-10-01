@@ -7,6 +7,7 @@ from .auth.entities.confirmation_user import ConfirmationUser
 from .profile.entities.delete_user import DeleteUser
 from .profile.entities.updata_user import UpdateUser
 from .profile.entities.profile_user import ProfileUser
+from .profile.entities.password_update import PasswordUpdate
 
 __all__ = [
     "BaseEntity",
@@ -15,5 +16,6 @@ __all__ = [
     "ConfirmationUser",
     "DeleteUser",
     "UpdateUser",
-    "ProfileUser"
+    "ProfileUser",
+    "PasswordUpdate",
 ]

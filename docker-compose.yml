@@ -51,7 +51,7 @@ services:
 
   api:
     build:
-      context: src1
+      context: src
       dockerfile: Dockerfile
     container_name: kiril_bot
     restart: always
