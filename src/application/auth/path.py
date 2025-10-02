@@ -9,4 +9,5 @@ PASSWORDUPDATE = "/password-update"
 # get
 PASSWORDRECOVERY = "/password-recovery"
 LOGOUT = "/logout"
+REFRESHUPDATE = "/refresh-update"
 

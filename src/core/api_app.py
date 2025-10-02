@@ -36,8 +36,11 @@ def create_app() -> FastAPI:
     async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
         if exc.detail == "Not authenticated":
             return JSONResponse(
-                status_code=400, content={"message": "Параметры входа не соответствуют верным."}
-            )
+                status_code=401, content={
+                                            "isSuccess": False,
+                                            "message": "Параметры входа не соответствуют верным..",
+                                            "data": {}
+                                        })
         return JSONResponse(
             status_code=exc.status_code,
             content={"message": exc.detail}
@@ -47,13 +50,19 @@ def create_app() -> FastAPI:
     async def validation_exception_handler(request: Request, exc) -> JSONResponse:
         if hasattr(exc, "body") and exc.body is None:
             return JSONResponse(
-                status_code=400,
-                content={"message": "Отсутствуют параметры запроса"}
-            )
+                status_code=422,
+                content={
+                    "isSuccess": False,
+                    "message": "Отсутствуют параметры запроса.",
+                    "data": {}
+                })
         return JSONResponse(
-            status_code=400,
-            content={"message": "Параметры входа не соответствуют верным."}
-        )
+            status_code=422,
+            content={
+                    "isSuccess": False,
+                    "message": "Параметры входа не соответствуют верным.",
+                    "data": {}
+                })
 
     app.include_router(test_router)
     app.include_router(auth_router)
