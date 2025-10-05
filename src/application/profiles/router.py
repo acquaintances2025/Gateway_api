@@ -1,10 +1,14 @@
 from fastapi import Request
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from starlette.responses import JSONResponse
+
 
 from typing import List
 
 from .path import GET_PROFILE, DELETE_PROFILE, UPDATE_PROFILE
+
 
 from src.domain import ProfileUser
 from src.infrastructure import AgentProfileClient, logger
@@ -13,6 +17,8 @@ profile_router = APIRouter(
     prefix="/profiles",
     tags=["profiles"],
 )
+
+security = HTTPBearer(auto_error=False)
 
 @profile_router.get(GET_PROFILE,
                     summary="Получение профиль пользователя",
@@ -50,21 +56,24 @@ profile_router = APIRouter(
                           "description": "Внутренняя ошибка сервера"
                       }
                   })
-async def get_profiles(request: Request):
-    # todo добавить систему проверку наличия авторизации на старте запроса
+async def get_profiles(request: Request,
+                       token: HTTPAuthorizationCredentials | None = Depends(security)):
     try:
         async with AgentProfileClient() as client:
-            response = await client.request(
+            answer = await client.request(
                 "GET",
                 GET_PROFILE,
-                json={} #todo решить что отправлять на сервис профиля либо jwt token и раскодировать его там либо раскодировать его тут и отправлять uuid пользователя
+                headers={"Authorization": f"Bearer {token.credentials}"}
             )
-            if response.status_code == 200:
+            if answer.status_code == 200:
                 logger.info("Успешное выполнение запроса.")
-                return response.json(), 200
+                return JSONResponse(status_code=answer.status_code, content=answer.json())
             else:
-                logger.error(f"Ответ стороннего сервиса {response.json()}")
-                return response.json(), 400
+                logger.error(f"Ответ стороннего сервиса {answer.json()}")
+                return JSONResponse(status_code=answer.status_code, content=answer.json())
+
     except Exception as exc:
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
-        return None, 500
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})

@@ -60,8 +60,9 @@ async def registration_user(user_data: RegistrationUser, response: Response):
 
     except Exception as exc:
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
-        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
-
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})
 
 
 @auth_router.post(CONFIRMATION,
@@ -86,8 +87,9 @@ async  def confirmation_user(code: ConfirmationUser,
                 return JSONResponse(status_code=answer.status_code, content=answer.json())
     except Exception as exc:
         logger.error(f"В процессе авторизации пользователя произошла ошибка {exc}")
-        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
-
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})
 
 @auth_router.post(AUTHORIZATION,
                   summary="Вход пользователя в аккаунт",
@@ -120,8 +122,9 @@ async def authorization_user(user_data: AuthUser, response: Response):
                 return JSONResponse(status_code=answer.status_code, content=answer.json())
     except Exception as exc:
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
-        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
-
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})
 @auth_router.get(LOGOUT,
                   summary="Запрос выхода пользователя из аккаунта.",
                   response_description="Выход пользователя из сессии, зачистка cookies",
@@ -175,8 +178,9 @@ async def user_password_recovery(email: str = Query(default=None, description="E
                 return JSONResponse(status_code=answer.status_code, content=answer.json())
     except Exception as exc:
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
-        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
-
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})
 
 @auth_router.post(PASSWORDUPDATE, summary="Завершение обновления пароля пользователя",
                   response_description="Обновление пароля пользователя от аккаунта",
@@ -197,8 +201,9 @@ async def password_update(user_data: PasswordUpdate):
             return JSONResponse(status_code=answer.status_code, content=answer.json())
     except Exception as exc:
         logger.error(f"В процессе авторизации пользователя произошла ошибка {exc}")
-        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
-
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})
 
 @auth_router.get(REFRESHUPDATE, summary="Обновление токена доступа пользователя",
                   response_description="Обновляет access и refresh токен доступа, перезаписывает cookies",
@@ -235,11 +240,12 @@ async def refresh_update(response: Response, request: Request):
                     dic = answer.json()
                     del dic["data"]["refresh_token"]
                     return dic
-                    return JSONResponse(status_code=answer.status_code, content=answer.json())
                 else:
                     logger.error(f"Ответ стороннего сервиса {answer.json()}")
                     return JSONResponse(status_code=answer.status_code, content=answer.json())
 
     except Exception as exc:
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
-        return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
+        return JSONResponse(status_code=500, content={"isSuccess": False,
+                                                      "message": "Возникла ошибка исполнения процесса.",
+                                                      "data": {}})
