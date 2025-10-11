@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from typing import Any
 
 from src.application import test_router, auth_router, profile_router
+from src.infrastructure import logger
 
 
 def create_app() -> FastAPI:
@@ -49,6 +50,8 @@ def create_app() -> FastAPI:
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc) -> JSONResponse:
         if hasattr(exc, "body") and exc.body is None:
+            logger.error(f"Ошибка отсутствуют параметры запроса: {exc}")
+
             return JSONResponse(
                 status_code=422,
                 content={
@@ -56,6 +59,7 @@ def create_app() -> FastAPI:
                     "message": "Отсутствуют параметры запроса.",
                     "data": {}
                 })
+        logger.error(f"Ошибка валидации параметров запроса: {exc}")
         return JSONResponse(
             status_code=422,
             content={
