@@ -6,6 +6,10 @@ from .auth.refresh_update_docs import refresh_update
 from .auth.registration_docs import registration
 from .auth.password_update_docs import password_update
 
+from .profile.get_profile_docs import profile
+from .profile.update_profile_docs import update_profile
+from .profile.delete_profile_api import delete_profile
+
 from .healthz.healthz_docs import healthz
 
 __all__ = [
@@ -16,5 +20,8 @@ __all__ = [
     "refresh_update",
     "registration",
     "password_update",
+    "profile",
+    "update_profile",
+    "delete_profile",
     "healthz"
 ]

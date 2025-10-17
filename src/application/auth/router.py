@@ -26,7 +26,7 @@ security = HTTPBearer(auto_error=False)
 
 
 @auth_router.post(REGISTRATION, summary="Регистрация пользователя.",
-                  response_description="Отправка письма/sms подтверждения регистрации.",
+                  response_description="Отправка письма/sms подтверждения регистрации",
                   responses=registration)
 
 async def registration_user(user_data: RegistrationUser, response: Response):
@@ -129,7 +129,7 @@ async def authorization_user(user_data: AuthUser, response: Response):
                                                       "message": "Возникла ошибка исполнения процесса.",
                                                       "data": {}})
 @auth_router.get(LOGOUT,
-                  summary="Запрос выхода пользователя из аккаунта.",
+                  summary="Запрос выхода пользователя из аккаунта",
                   response_description="Выход пользователя из сессии, зачистка cookies",
                   responses=logout)
 async def user_logout(response: Response, request: Request, session_id: UUID = Depends(cookie)):
@@ -154,7 +154,7 @@ async def user_logout(response: Response, request: Request, session_id: UUID = D
         return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
 
 @auth_router.get(PASSWORDRECOVERY,
-                  summary="Запрос на обновление пароля пользователя.",
+                  summary="Запрос на обновление пароля пользователя",
                   response_description="Отправляет код подтверждения для обновления пароля пользователя. Работает как под авторизованным пользователем (через токен) так и под не авторизованным (под email)",
                   responses=password_recovery)
 async def user_password_recovery(email: str = Query(default=None, description="Email пользователя для восстановления пароля"),
