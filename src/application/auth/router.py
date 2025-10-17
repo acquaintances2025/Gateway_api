@@ -1,11 +1,8 @@
-from pickle import FALSE
+from uuid import UUID
 
 from fastapi import APIRouter, Response, Depends, Query, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.responses import JSONResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-from typing import Annotated
-
 
 from src.infrastructure.docs import (logout,
                                      authorization,
@@ -14,12 +11,14 @@ from src.infrastructure.docs import (logout,
                                      refresh_update,
                                      registration,
                                      password_update)
+
 from .path import AUTHORIZATION, REGISTRATION, CONFIRMATION, LOGOUT, PASSWORDRECOVERY, PASSWORDUPDATE, REFRESHUPDATE
 
 from src.domain import RegistrationUser, ConfirmationUser, AuthUser, PasswordUpdate
-from src.infrastructure import logger, AgentAuthClient
+from src.infrastructure import AgentAuthClient, set_session, cookie, backend, logger
 
 from src.config.settings import Config
+
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 security = HTTPBearer(auto_error=False)
@@ -104,6 +103,7 @@ async def authorization_user(user_data: AuthUser, response: Response):
                 json=dict(user_data)
             )
             if answer.status_code == 200:
+
                 response.delete_cookie(key="Hive")
                 response.set_cookie(
                     key="Hive",
@@ -113,9 +113,12 @@ async def authorization_user(user_data: AuthUser, response: Response):
                     secure=True,
                     samesite="strict",
                 )
-                logger.info("Успешное выполнение запроса.")
+
                 dic = answer.json()
                 del dic["data"]["refresh_token"]
+                await set_session(dic["data"]["access_token"], response)
+
+                logger.info("Успешное выполнение запроса.")
                 return dic
             else:
                 logger.error(f"Ответ стороннего сервиса {answer.json()}")
@@ -129,7 +132,7 @@ async def authorization_user(user_data: AuthUser, response: Response):
                   summary="Запрос выхода пользователя из аккаунта.",
                   response_description="Выход пользователя из сессии, зачистка cookies",
                   responses=logout)
-async def user_logout(response: Response, request: Request):
+async def user_logout(response: Response, request: Request, session_id: UUID = Depends(cookie)):
     try:
         if request.cookies.get("Hive", None) is None:
             return JSONResponse(status_code=400, content={
@@ -138,6 +141,8 @@ async def user_logout(response: Response, request: Request):
                 "data": None
             })
         else:
+            await backend.delete(session_id)
+            cookie.delete_from_response(response)
             response.delete_cookie(key="Hive")
             return {
                 "isSuccess": True,

@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
+from src.infrastructure import Middleware
 
 from typing import Any
 
@@ -15,6 +16,11 @@ def create_app() -> FastAPI:
         title="Gateway API",
         version="0.0.1",
     )
+
+    @app.middleware("http")
+    async def add_process_time_header(request: Request, call_next):
+        answer = await Middleware(request, call_next).check_tokens()
+        return answer
 
     app.add_middleware(
         CORSMiddleware,
