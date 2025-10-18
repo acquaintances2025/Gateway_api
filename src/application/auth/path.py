@@ -3,11 +3,11 @@
 AUTHORIZATION = "/authorization"
 REGISTRATION = "/registration"
 CONFIRMATION = "/confirmation"
-PASSWORDUPDATE = "/password-update"
+PASSWORD_UPDATE = "/password-update"
 
 
 # get
-PASSWORDRECOVERY = "/password-recovery"
+PASSWORD_RECOVERY = "/password-recovery"
 LOGOUT = "/logout"
-REFRESHUPDATE = "/refresh-update"
+REFRESH_UPDATE = "/refresh-update"
 

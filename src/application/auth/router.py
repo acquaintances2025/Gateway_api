@@ -12,7 +12,7 @@ from src.infrastructure.docs import (logout,
                                      registration,
                                      password_update)
 
-from .path import AUTHORIZATION, REGISTRATION, CONFIRMATION, LOGOUT, PASSWORDRECOVERY, PASSWORDUPDATE, REFRESHUPDATE
+from .path import AUTHORIZATION, REGISTRATION, CONFIRMATION, LOGOUT, PASSWORD_UPDATE, PASSWORD_RECOVERY, REFRESH_UPDATE
 
 from src.domain import RegistrationUser, ConfirmationUser, AuthUser, PasswordUpdate
 from src.infrastructure import AgentAuthClient, set_session, cookie, backend, logger
@@ -153,7 +153,7 @@ async def user_logout(response: Response, request: Request, session_id: UUID = D
         logger.error(f"В процессе подтверждения пользователя произошла ошибка {exc}")
         return JSONResponse(status_code=500, content={"answer": "Возникла ошибка исполнения процесса."})
 
-@auth_router.get(PASSWORDRECOVERY,
+@auth_router.get(PASSWORD_RECOVERY,
                   summary="Запрос на обновление пароля пользователя",
                   response_description="Отправляет код подтверждения для обновления пароля пользователя. Работает как под авторизованным пользователем (через токен) так и под не авторизованным (под email)",
                   responses=password_recovery)
@@ -165,14 +165,14 @@ async def user_password_recovery(email: str = Query(default=None, description="E
             if token is not None:
                 answer = await client.request(
                     "GET",
-                    PASSWORDRECOVERY,
+                    PASSWORD_RECOVERY,
                     headers={"Authorization": f"Bearer {token.credentials}"}
                 )
             else:
                 params = {"email": email, "phone": phone}
                 answer = await client.request(
                     "GET",
-                    PASSWORDRECOVERY,
+                    PASSWORD_RECOVERY,
                     params=params
                 )
             if answer.status_code == 200:
@@ -187,7 +187,7 @@ async def user_password_recovery(email: str = Query(default=None, description="E
                                                       "message": "Возникла ошибка исполнения процесса.",
                                                       "data": {}})
 
-@auth_router.post(PASSWORDUPDATE, summary="Завершение обновления пароля пользователя",
+@auth_router.post(PASSWORD_UPDATE, summary="Завершение обновления пароля пользователя",
                   response_description="Обновление пароля пользователя от аккаунта",
                   responses=password_update)
 async def password_update(user_data: PasswordUpdate):
@@ -195,7 +195,7 @@ async def password_update(user_data: PasswordUpdate):
         async with AgentAuthClient() as client:
             answer = await client.request(
                 "POST",
-                PASSWORDUPDATE,
+                PASSWORD_UPDATE,
                 json=dict(user_data),
             )
         if answer.status_code == 200:
@@ -210,7 +210,7 @@ async def password_update(user_data: PasswordUpdate):
                                                       "message": "Возникла ошибка исполнения процесса.",
                                                       "data": {}})
 
-@auth_router.get(REFRESHUPDATE, summary="Обновление токена доступа пользователя",
+@auth_router.get(REFRESH_UPDATE, summary="Обновление токена доступа пользователя",
                   response_description="Обновляет access и refresh токен доступа, перезаписывает cookies",
                   responses=refresh_update)
 async def refresh_update(response: Response, request: Request):
@@ -225,7 +225,7 @@ async def refresh_update(response: Response, request: Request):
             async with AgentAuthClient() as client:
                 answer = await client.request(
                     "GET",
-                    REFRESHUPDATE,
+                    REFRESH_UPDATE,
                     cookies={"Hive": str(
                         request.cookies["Hive"]) if 'Hive' in request.cookies else None}
                 )

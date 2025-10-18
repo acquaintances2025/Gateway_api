@@ -9,6 +9,8 @@ from .profile.entities.updata_user import UpdateProfile
 from .profile.entities.profile_user import ProfileUser
 from .profile.entities.password_update import PasswordUpdate
 from .profile.entities.comfirmation_email import ConfirmationEmail
+from .profile.entities.confirmation_phone import ConfirmationPhone
+from .profile.entities.completion_code import CompletionCode
 
 __all__ = [
     "BaseEntity",
@@ -19,5 +21,7 @@ __all__ = [
     "UpdateProfile",
     "ProfileUser",
     "PasswordUpdate",
-    "ConfirmationEmail"
+    "ConfirmationEmail",
+    "ConfirmationPhone",
+    "CompletionCode"
 ]
