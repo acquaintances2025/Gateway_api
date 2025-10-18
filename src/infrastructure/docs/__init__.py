@@ -9,6 +9,9 @@ from .auth.password_update_docs import password_update
 from .profile.get_profile_docs import profile
 from .profile.update_profile_docs import update_profile
 from .profile.delete_profile_api import delete_profile
+from .profile.confirmation_email_docs import confirmation_email
+from .profile.confirmation_phone_docs import confirmation_phone
+from .profile.completion_confirmation_docs import completion_confirmation
 
 from .healthz.healthz_docs import healthz
 
@@ -23,5 +26,8 @@ __all__ = [
     "profile",
     "update_profile",
     "delete_profile",
-    "healthz"
+    "healthz",
+    "confirmation_email",
+    "confirmation_phone",
+    "completion_confirmation"
 ]

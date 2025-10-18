@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse
 
 from .path import GET_PROFILE, DELETE_PROFILE, UPDATE_PROFILE, CONFIRMATION_EMAIL, CONFIRMATION_PHONE, COMPLETION_CONFIRMATION
-from src.infrastructure.docs import profile, update_profile, delete_profile
+from src.infrastructure.docs import profile, update_profile, delete_profile, confirmation_email, confirmation_phone, completion_confirmation
 
 from src.domain import ProfileUser, UpdateProfile, ConfirmationEmail, ConfirmationPhone, CompletionCode
 from src.infrastructure import AgentProfileClient, logger, SessionData, verifier, cookie
@@ -72,7 +72,7 @@ async def update_profile(user_data: UpdateProfile,
                        dependencies=[Depends(cookie)],
                        summary="Удаление профиля пользователя",
                        response_description="Переводит аккаунт пользователя в статус 'Удален' после чего включается счетчик активности, через 30 дней без активности профиль полностью удаляется",
-                       # responses="delete_profile"
+                       responses=delete_profile
                        )
 async def delete_profile(session_data: SessionData = Depends(verifier)):
     try:
@@ -98,9 +98,9 @@ async def delete_profile(session_data: SessionData = Depends(verifier)):
 
 @profile_router.put(CONFIRMATION_EMAIL,
                     dependencies=[Depends(cookie)],
-                    summary="Подтверждение email пользователя.",
+                    summary="Отправка кода подтверждения на email пользователя.",
                     response_description="Запрашивает email пользователя и отправляет код подтверждения.",
-                    # responses=delete_profile
+                    responses=confirmation_email
                        )
 async def confirmation_email(user_email: ConfirmationEmail,
                              session_data: SessionData = Depends(verifier)):
@@ -128,9 +128,9 @@ async def confirmation_email(user_email: ConfirmationEmail,
 
 @profile_router.put(CONFIRMATION_PHONE,
                     dependencies=[Depends(cookie)],
-                    summary="Подтверждение номера телефона пользователя.",
+                    summary="Отправка кода подтверждения на номер телефона пользователя.",
                     response_description="Запрашивает номер телефона пользователя и отправляет код подтверждения.",
-                    # responses=delete_profile
+                    responses=confirmation_phone
                        )
 async def confirmation_phone(user_phone: ConfirmationPhone,
                              session_data: SessionData = Depends(verifier)):
@@ -159,7 +159,7 @@ async def confirmation_phone(user_phone: ConfirmationPhone,
                     dependencies=[Depends(cookie)],
                     summary="Подтверждение номера телефона пользователя.",
                     response_description="Запрашивает номер телефона пользователя и отправляет код подтверждения.",
-                    # responses=delete_profile
+                    responses=completion_confirmation
                     )
 async def completion_confirmation(user_code: CompletionCode,
                                   session_data: SessionData = Depends(verifier)):
